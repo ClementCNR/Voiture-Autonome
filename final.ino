@@ -11,6 +11,7 @@ const int ir = 7;
 
 void setup()
 {
+  Serial.begin(9600);
   pinMode(cptGauche, INPUT);
   pinMode(cptGaucheMilieu, INPUT);
   pinMode(cptDroiteMilieu, INPUT);
@@ -18,11 +19,7 @@ void setup()
   Motor.begin(I2C_ADDRESS);
   Motor.stop(MOTOR1);
   Motor.stop(MOTOR2);
-  /*int cpt1val = digitalRead(cpt1);
-  int cpt2val = digitalRead(cpt2);
-  int cpt3val = digitalRead(cpt3);
-  int cpt4val = digitalRead(cpt4);*/
-}
+  }
 
 void loop()
 {
@@ -31,20 +28,155 @@ void loop()
   int valDroiteMilieu = digitalRead(cptDroiteMilieu);
   int valDroite = digitalRead(cptDroite);
 
-  if(valGaucheMilieu == HIGH || valDroiteMilieu == HIGH)
+  if((valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == LOW) || (valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == LOW && valDroite == LOW) || (valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == HIGH && valDroite == LOW))
   {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("Tout droit");
     MvtVoiture.forward();
   }
-  else if(valDroite == HIGH)
+  else if(valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == LOW && valDroite == HIGH)
   {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("droite");
     MvtVoiture.right();
   }
-  else if(valGauche == HIGH)
+  else if(valGauche == HIGH && valGaucheMilieu == LOW && valDroiteMilieu == LOW && valDroite == LOW)
   {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("gauche");
     MvtVoiture.left();
   }
-  else
+  else if(valGauche == HIGH && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == HIGH)
   {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println(" Tout droit / gauche / droite");
+
+    int nbreAleatoire = random(1, 4);
+
+    if (nbreAleatoire == 1){
+     MvtVoiture.left();
+     Serial.println("La voiture a choisi de tourner a gauche");
+     
+    }
+    else if(nbreAleatoire == 2){
+     MvtVoiture.right();
+     Serial.println("La voiture a choisi de tourner a droite");
+    }
+    else{
+     MvtVoiture.forward();
+     Serial.println("La voiture a choisi d aller tout droit");
+    }
+
+  }
+    else if(valGauche == HIGH && valGaucheMilieu == LOW && valDroiteMilieu == LOW && valDroite == HIGH)
+  {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("droite / gauche");
+
+    int nbreAleatoire = random(1, 3);
+
+    if (nbreAleatoire == 1){
+        MvtVoiture.left();
+        Serial.println("La voiture a choisi de tourner a gauche");
+    }
+    else{
+        MvtVoiture.right();
+        Serial.println("La voiture a choisi de tourner a droite");
+    }
+  }
+    else if((valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == HIGH && valDroite == HIGH) || (valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == HIGH) || (valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == LOW && valDroite == HIGH))
+  {
+    Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("droite / tout droit");
+
+    int nbreAleatoire = random(1, 3);
+
+    if (nbreAleatoire == 1){
+      MvtVoiture.right();
+      Serial.println("La voiture a choisi de tourner a droite");
+    }
+    else{
+      MvtVoiture.forward();
+      Serial.println("La voiture a choisi d aller tout droit");
+    }
+
+  }
+      else if((valGauche == HIGH && valGaucheMilieu == HIGH && valDroiteMilieu == LOW && valDroite == LOW) || (valGauche == HIGH && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == LOW) || (valGauche == HIGH && valGaucheMilieu == LOW && valDroiteMilieu == HIGH && valDroite == LOW))
+  {
+        Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("gauche / tout droit");
+
+    int nbreAleatoire = random(1, 3);
+
+    if (nbreAleatoire == 1){
+       MvtVoiture.left();
+       Serial.println("La voiture a choisi de tourner a gauche");
+    }
+    else{
+        MvtVoiture.forward();
+        Serial.println("La voiture a choisi de tourner a droite");
+    }
+  }
+   else
+  {
+        Serial.print(valGauche);
+    Serial.print(" : ");
+    Serial.print(valGaucheMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroiteMilieu);
+    Serial.print(" : ");
+    Serial.print(valDroite);
+    Serial.print(" : ");
+    Serial.println("Cherche un chemin");
     MvtVoiture.seekingPath();
   }
   

@@ -1,0 +1,8 @@
+0 = inconnu
+1 = tout droit
+2 = gauche
+3 = droite
+4 = gauche / droite
+5 = gauche / tout droit
+6 = droit / tout droit
+7 = Droite / gauche / tout droit
