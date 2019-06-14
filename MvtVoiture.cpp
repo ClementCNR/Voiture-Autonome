@@ -1,40 +1,47 @@
 #include <Arduino.h>
 #include "MvtVoiture.h"
 
-MvtVoiture_::MvtVoiture_(int pin1, int pin2)
+void MvtVoitureD::forward(void)
 {
-  pinMode(pin1, OUTPUT);
-  pinMode(pin2, OUTPUT);
-  leftengpin = pin1;  
-  rightengpin = pin2;
+  Motor.speed(MOTOR1, 100);
+  Motor.speed(MOTOR2, 100);
 }
 
-void MvtVoiture_::forward(void)
+void MvtVoitureD::left(void)
 {
-  digitalWrite(leftengpin, HIGH);
-  digitalWrite(rightengpin, HIGH);
+  Motor.speed(MOTOR1, 80);
+  Motor.speed(MOTOR2, -80);
+  delay(765);
+  Motor.speed(MOTOR1, 100);
+  Motor.speed(MOTOR2, 100);
 }
 
-void MvtVoiture_::left(void)
+void MvtVoitureD::right(void)
 {
-  digitalWrite(leftengpin, LOW);
-  digitalWrite(rightengpin, HIGH);
+  Motor.speed(MOTOR1, -80);
+  Motor.speed(MOTOR2, 80);
+  delay(765);
+  Motor.speed(MOTOR1, 100);
+  Motor.speed(MOTOR2, 100);
 }
 
-void MvtVoiture_::right(void)
+void MvtVoitureD::stopCar(void)
 {
-  digitalWrite(rightengpin, LOW);
-  digitalWrite(leftengpin, HIGH);
+   Motor.stop(MOTOR1);
+   Motor.stop(MOTOR2);
 }
 
-void MvtVoiture_::stopCar(void)
+void MvtVoitureD::seekingPath(void)
 {
-  digitalWrite(leftengpin, LOW);
-  digitalWrite(rightengpin, LOW);
-}
-
-void MvtVoiture_::seekingPath(void)
-{
-  digitalWrite(leftengpin, LOW);
-  digitalWrite(rightengpin, HIGH);
+   Motor.speed(MOTOR1, 80);
+   Motor.speed(MOTOR2, -80);
+   delay(100);
+   Motor.speed(MOTOR1, -80);
+   Motor.speed(MOTOR2, 80);
+   delay(100);
+   Motor.speed(MOTOR1, 100);
+   Motor.speed(MOTOR2, 100);
+   delay(100);
+   Motor.stop(MOTOR1);
+   Motor.stop(MOTOR2);
 }
