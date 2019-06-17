@@ -4,6 +4,11 @@
 
 #include <Arduino.h>
 
+/*This library is used to move an arduino with 2 engines
+1 on the left, 1 on the right.
+Can turn lef, right, go forward, pathfinding, recorrect his path,
+stop and return the type of crossroads*/
+
 class MvtVoitureD
 {
 private:
