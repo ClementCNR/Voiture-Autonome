@@ -28,7 +28,7 @@ void loop()
   int valDroiteMilieu = digitalRead(cptDroiteMilieu);
   int valDroite = digitalRead(cptDroite);
 
-  if((valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == LOW) || (valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == LOW && valDroite == LOW) || (valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == HIGH && valDroite == LOW))
+  if(valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == LOW)
   {
     Serial.print(valGauche);
     Serial.print(" : ");
@@ -40,6 +40,17 @@ void loop()
     Serial.print(" : ");
     Serial.println("Tout droit");
     MvtVoiture.forward();
+    MvtVoiture.crossroads(1);
+  }
+  else if(valGauche == LOW && valGaucheMilieu == HIGH && valDroiteMilieu == LOW && valDroite == LOW)
+  {
+    MvtVoiture.alignRight();
+    Serial.println("alignement vers la gauche");
+  }
+  else if(valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == HIGH && valDroite == LOW)
+  {
+    MvtVoiture.alignLeft();
+    Serial.println("alignment vers la droite");
   }
   else if(valGauche == LOW && valGaucheMilieu == LOW && valDroiteMilieu == LOW && valDroite == HIGH)
   {
@@ -53,6 +64,7 @@ void loop()
     Serial.print(" : ");
     Serial.println("droite");
     MvtVoiture.right();
+    MvtVoiture.crossroads(3);
   }
   else if(valGauche == HIGH && valGaucheMilieu == LOW && valDroiteMilieu == LOW && valDroite == LOW)
   {
@@ -66,6 +78,7 @@ void loop()
     Serial.print(" : ");
     Serial.println("gauche");
     MvtVoiture.left();
+    MvtVoiture.crossroads(2);
   }
   else if(valGauche == HIGH && valGaucheMilieu == HIGH && valDroiteMilieu == HIGH && valDroite == HIGH)
   {
@@ -78,6 +91,8 @@ void loop()
     Serial.print(valDroite);
     Serial.print(" : ");
     Serial.println(" Tout droit / gauche / droite");
+
+    MvtVoiture.crossroads(7);
 
     int nbreAleatoire = random(1, 4);
 
@@ -108,6 +123,8 @@ void loop()
     Serial.print(" : ");
     Serial.println("droite / gauche");
 
+    MvtVoiture.crossroads(4);
+
     int nbreAleatoire = random(1, 3);
 
     if (nbreAleatoire == 1){
@@ -130,6 +147,8 @@ void loop()
     Serial.print(valDroite);
     Serial.print(" : ");
     Serial.println("droite / tout droit");
+
+    MvtVoiture.crossroads(6);
 
     int nbreAleatoire = random(1, 3);
 
@@ -155,6 +174,8 @@ void loop()
     Serial.print(" : ");
     Serial.println("gauche / tout droit");
 
+    MvtVoiture.crossroads(5);
+
     int nbreAleatoire = random(1, 3);
 
     if (nbreAleatoire == 1){
@@ -178,6 +199,8 @@ void loop()
     Serial.print(" : ");
     Serial.println("Cherche un chemin");
     MvtVoiture.seekingPath();
+
+    MvtVoiture.crossroads(0);    
   }
   
 }

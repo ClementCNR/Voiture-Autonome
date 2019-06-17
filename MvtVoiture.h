@@ -8,13 +8,16 @@ class MvtVoitureD
 {
 private:
   int leftengpin;
-  int rightengpin;  
-public: 
+  int rightengpin;
+public:
   void forward(void);
   void left(void);
   void right(void);
   void stopCar(void);
   void seekingPath(void);
+  void alignLeft(void);
+  void alignRight(void);
+  int crossroads(int inter);
 };
 
 extern MvtVoitureD MvtVoiture;
