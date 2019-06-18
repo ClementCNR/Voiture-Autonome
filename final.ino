@@ -11,8 +11,8 @@ const int cptDroiteMilieu = 7;
 const int cptDroite = 3;
 //Initialisation du pin du capteur IR
 const int ir = 7;
-//Initialisation des variables pourle pathfinding
-const int autonomus = 0;
+//Initialisation des variables pour le pathfinding
+const int autonomus = 1;
 char* steps = NULL;
 Point points[16];
 char numberOfSteps = 0;
@@ -205,17 +205,24 @@ void loop()
  }
  else
  {
+   //Mode pré-programmé
+
+   //Si le trajet est fini, on ne fait rien
    if(finished == 0)
    {
+      //On récupère le prochain point
       nextPoint = steps[stepNumber + 1];
 
       if(nextPoint == 14)
       {
+        //S'il est égal à 14 on stocke l'ancien
         lastPoint14 = actualPoint;
       }
 
       if(actualPoint == 14 && lastPoint14 != 0 && lastPoint14 != 16)
       { 
+         //Si le point actuel vaut 14, et que le point précédent est différent de 16 ou 0, il y a un comportement spécial
+         //Comme le point 14, a plusieurs possibilité de point de départ, le robot peut avoir un référentiel droit gauche différent que celui-stocké (stocké : le robot pointe vers le haut)
         if(lastPoint14 == 4)
         {
           if(nextPoint == 11)
@@ -233,6 +240,7 @@ void loop()
           }
           else
           {
+            //Sinon il y a bug, on stoppe tout
             finished = 1;
           }
         }
@@ -247,16 +255,20 @@ void loop()
           }
           else
           {
+            //Sinon il y a bug, on stoppe tout
             finished = 1;
           }
         }
         else
         {
+          //Sinon il y a bug, on stoppe tout
           finished = 1;
         }
       }
       else
       {
+        //Sinon, c'est un comportement normal 
+        //Les directions sont donnée par défaut dans chaque objet de type Point. b (sauf point 14)
         if(points[actualPoint - 1].droit == nextPoint)
         {
           Move();
@@ -283,7 +295,6 @@ void loop()
           finished = 1;
         }
       }
-       delay(1000);
    }
  }
 }
