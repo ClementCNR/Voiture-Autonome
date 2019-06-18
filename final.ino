@@ -9,8 +9,28 @@ const int cptGauche = 4;
 const int cptGaucheMilieu = 8;
 const int cptDroiteMilieu = 7;
 const int cptDroite = 3;
+
+//Pin capteur vitesse
+const int fourchePin = 6;     //Sortie de la fourche pin5
+const int ledPin =  9;        // LED témoin sur pin
+//Capteur vitesse
+int EtatFourche = 0;
+const float roue = 20;          //nb de cran par roue
+const float periRoue = 18.84;      //environ perimetre de la roue en cm
+int nbEncoche = 0;
+boolean tourne = false;
+float distParcourue = 0;
+unsigned long t1 = micros();
+unsigned long t2 = micros();
+boolean temps = LOW;
+unsigned long t3 = 0;
+float v = 0.0;
+float TTS = 0.0;
+
+
 //Initialisation du pin du capteur IR
 const int ir = 7;
+
 //Initialisation des variables pour le pathfinding
 const int autonomus = 1;
 char* steps = NULL;
@@ -24,17 +44,25 @@ char lastPoint14 = 0;
 
 void setup()
 {
+  //connection au port série
   Serial.begin(9600);
+  
   //initialisation des pin des capteurs
   pinMode(cptGauche, INPUT);
   pinMode(cptGaucheMilieu, INPUT);
   pinMode(cptDroiteMilieu, INPUT);
   pinMode(cptDroite, INPUT);
+  
   //initialisation des moteurs
   Motor.begin(I2C_ADDRESS);
   Motor.stop(MOTOR1);
   Motor.stop(MOTOR2);
 
+  //Capteur vitesse
+  pinMode(ledPin, OUTPUT);     //LED en sortie
+  pinMode(fourchePin, INPUT);  //en entrée
+  Serial.println("Fourche optique - detection de presence");
+  
   if(autonomus == 0)
   {
     setPoints(points);
@@ -88,6 +116,40 @@ void Move()
 
 void loop()
 {
+  distParcourue = (nbEncoche / roue) * periRoue;
+  Serial.print(distParcourue);
+  Serial.println(" cm");
+
+  t3 = (t2 - t1);
+  TTS = ((float)t3 / 1000.0);
+  v = (0.018 / (float)TTS);
+  Serial.print("vitesse : ");
+  Serial.println(v);
+  
+  //Vérifie si un objet obture la fourche optique
+  EtatFourche = digitalRead(fourchePin);
+  if (EtatFourche == HIGH) {     
+        tourne = true; 
+  } 
+  else 
+  {
+        if (tourne == true)
+        {
+            nbEncoche = nbEncoche + 1;
+            if (temps == LOW)
+            {
+                t1 = micros();
+                temps = HIGH;
+            }
+            else
+            {
+               t2 = micros();
+               temps = false;
+            }
+    }
+    tourne = LOW;
+  }
+
   if(autonomus == 1)
   {
     int valGauche = digitalRead(cptGauche);
