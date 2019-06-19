@@ -11,8 +11,7 @@ const int cptDroiteMilieu = 7;
 const int cptDroite = 3;
 
 //Pin capteur vitesse
-const int fourchePin = 6;     //Sortie de la fourche pin5
-const int ledPin =  9;        // LED témoin sur pin
+const int fourchePin = 6;     //Sortie de la fourche pin6
 //Capteur vitesse
 int EtatFourche = 0;
 const float roue = 20;          //nb de cran par roue
@@ -59,8 +58,7 @@ void setup()
   Motor.stop(MOTOR2);
 
   //Capteur vitesse
-  pinMode(ledPin, OUTPUT);     //LED en sortie
-  pinMode(fourchePin, INPUT);  //en entrée
+  pinMode(fourchePin, INPUT);
   Serial.println("Fourche optique - detection de presence");
   
   if(autonomus == 0)
@@ -119,6 +117,8 @@ void loop()
   distParcourue = (nbEncoche / roue) * periRoue;
   Serial.print(distParcourue);
   Serial.println(" cm");
+  //Serial.print("tourne = ");
+  //Serial.println(tourne);
 
   t3 = (t2 - t1);
   TTS = ((float)t3 / 1000.0);
@@ -136,6 +136,8 @@ void loop()
         if (tourne == true)
         {
             nbEncoche = nbEncoche + 1;
+            //Serial.print("nombre d'encoche : ");
+            //Serial.println(nbEncoche);
             if (temps == LOW)
             {
                 t1 = micros();
