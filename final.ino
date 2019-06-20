@@ -1,8 +1,11 @@
 #include <MvtVoiture.h>
 #include <Points.h>
+#include <FreqCounter.h>
+#include <VirtualWire.h> // On inclus la librairie VirtualWire
+#include <VirtualWire_Config.h>
 #define I2C_ADDRESS 0x0f
 #define DEPARTURE_POINT 1
-#define ARRIVAL_POINT 11
+#define ARRIVAL_POINT 11 
 
 //Initialisation des pin des capteur de ligne
 const int cptGauche = 4;
@@ -10,14 +13,20 @@ const int cptGaucheMilieu = 8;
 const int cptDroiteMilieu = 7;
 const int cptDroite = 3;
 
+//Initialisation liaison radio
+const int RF_TX_PIN = 6;
+//const char *msg = "Bonjour"; // Tableau qui contient notre message
+float valeur = 0.0;
+
+
 //Pin capteur vitesse
-const int fourchePin = 6;     //Sortie de la fourche pin6
+const int pinCptVitesse = 2;     //Sortie de la fourche pin2
 //Capteur vitesse
-int EtatFourche = 0;
 const float roue = 20;          //nb de cran par roue
 const float periRoue = 18.84;      //environ perimetre de la roue en cm
-int nbEncoche = 0;
-boolean tourne = false;
+boolean EtatFourche = LOW;
+boolean roueActive = false;
+static int nbCran = 0;
 float distParcourue = 0;
 unsigned long t1 = micros();
 unsigned long t2 = micros();
@@ -25,10 +34,21 @@ boolean temps = LOW;
 unsigned long t3 = 0;
 float v = 0.0;
 float TTS = 0.0;
+float rps = 0.0;
+
+
+/*//FreqCounter
+unsigned long frq;    //fréquence mesurée
+int cnt;              //nombre de mesures réalisées
+int encoches = 20; //nombre d encoches de la roue codeuse (1 ou plus)
+float trmin;  //vitesse de rotation en tour/min
+float ms; // vitesse en m/s*/
 
 
 //Initialisation du pin du capteur IR
-const int ir = 7;
+const int ir = 1;
+int distObstacleIR = 0;
+char msgIR = "";
 
 //Initialisation des variables pour le pathfinding
 const int autonomus = 1;
@@ -58,8 +78,15 @@ void setup()
   Motor.stop(MOTOR2);
 
   //Capteur vitesse
-  pinMode(fourchePin, INPUT);
-  Serial.println("Fourche optique - detection de presence");
+  pinMode(pinCptVitesse, INPUT);
+  attachInterrupt(0, compterCran, CHANGE);
+
+  //Capteur IR
+  pinMode(ir, INPUT);
+
+  //Liason radio
+  vw_set_tx_pin(RF_TX_PIN);
+  vw_setup(2000);     // initialisation de la librairie VirtualWire à 2000 bauds
   
   if(autonomus == 0)
   {
@@ -112,32 +139,62 @@ void Move()
 }
 
 
-void loop()
-{
-  distParcourue = (nbEncoche / roue) * periRoue;
-  Serial.print(distParcourue);
-  Serial.println(" cm");
-  //Serial.print("tourne = ");
-  //Serial.println(tourne);
 
-  t3 = (t2 - t1);
-  TTS = ((float)t3 / 1000.0);
-  v = (0.018 / (float)TTS);
-  Serial.print("vitesse : ");
-  Serial.println(v);
-  
-  //Vérifie si un objet obture la fourche optique
-  EtatFourche = digitalRead(fourchePin);
+//fct qui compte le nombre de cran
+void compterCran(){
+  EtatFourche = digitalRead(pinCptVitesse);
   if (EtatFourche == HIGH) {     
-        tourne = true; 
+        roueActive = true; 
   } 
   else 
   {
-        if (tourne == true)
+       if (roueActive == true)
+       {
+           nbCran++;
+       }
+  }
+}
+
+
+
+
+void loop()
+{
+  
+  //INFRAROUGE
+  distObstacleIR = analogRead(ir);
+  if(distObstacleIR <= 300){
+    Serial.print(distObstacleIR);
+    Serial.println(" <= 300 : Je peut me garer");
+      }
+  else{
+    Serial.print(distObstacleIR);
+    Serial.println(" > 300 : Je ne peut pas me garer");
+  }
+  msgIR = (char)distObstacleIR;
+
+  /*t3 = (t2 - t1);
+  TTS = ((float)t3 / 1000000.0);
+  v = (0.018 / (float)TTS);
+  Serial.print("vitesse (en m/s) : ");
+  Serial.println(v);
+  //distParcourue PARCOURUE ET VITESSE
+  distParcourue = ((nbCran / roue) * periRoue) / 100;
+  Serial.print(distParcourue);
+  Serial.println(" m");*/
+  
+  /*//Vérifie si un objet obture la fourche optique
+  EtatFourche = digitalRead(pinCptVitesse);
+  if (EtatFourche == HIGH) {     
+        roueActive = true; 
+  } 
+  else 
+  {
+        if (roueActive == true)
         {
-            nbEncoche = nbEncoche + 1;
-            //Serial.print("nombre d'encoche : ");
-            //Serial.println(nbEncoche);
+            nbCran = nbCran + 1;
+            Serial.print("nombre d'encoche : ");
+            Serial.println(nbCran);
             if (temps == LOW)
             {
                 t1 = micros();
@@ -149,9 +206,56 @@ void loop()
                temps = false;
             }
     }
-    tourne = LOW;
-  }
+  }*/
+/*
+  if (millis() - t1 >= 1000){
+      rps = nbCran * 2 / roue;
+      v = rps * periRoue;
+      distParcourue = distParcourue + v;
 
+      //Serial.print("vitesse : ");
+      //Serial.println(v);
+      roueActive = false;
+      t1 = millis();
+      nbCran = 0;
+    }*/
+/*
+//compensation (étalonnage)
+  FreqCounter::f_comp = 10; // Cal Value / Calibrate with professional Freq Counter
+  // 10, 100 ou 1000 ms pour une résolution de 100, 10 et 1 Hz
+  FreqCounter::start(100);  // 100 ms Gate Time
+
+  // Attendre jusqu'à avoir un comptage terminé
+
+  while (FreqCounter::f_ready == 0) {
+    frq = FreqCounter::f_freq; // a ne pas supprimer permet de calculer le trmn
+
+    trmin = frq / encoches * 60; //Vitesse de rotation en tour/min
+
+    Serial.print("  tour/min: ");
+    Serial.println(trmin);
+
+    ms = (2 * PI * 0.032 * trmin / 60) * 10; // Calcul de la vitesse en m/s
+
+    Serial.print(" vitesse en m/s: ");
+    Serial.println(ms);
+    delay(500);
+  }*/
+    
+    //Serial.println(nbCran);
+    v = ((nbCran / 20) * periRoue) / 100;
+    Serial.print("Vitesse Instantané (m/s) : ");
+    Serial.println(v);
+    //distParcourue PARCOURUE ET VITESSE
+    distParcourue = ((nbCran / roue) * periRoue) / 100;
+    Serial.print("Distance Totale Parcourue : ");
+    Serial.print(distParcourue);
+    Serial.println(" m");
+    nbCran = 0;
+    delay(1000);
+
+
+  //PATHFINDING
   if(autonomus == 1)
   {
     int valGauche = digitalRead(cptGauche);
@@ -361,4 +465,28 @@ void loop()
       }
    }
  }
+
+    /*//Liaison radio
+    Serial.print("Envoie..."); // On signale le début de l'envoi
+    vw_send((uint8_t *)msg, strlen(msg)); // On envoie le message 
+    vw_wait_tx(); // On attend la fin de l'envoi
+    Serial.println("Done !"); // On signal la fin de l'envoi
+    delay(1000); // Et on attend 1s pour éviter que deux messages se superpose*/
+
+
+      // Lit un nombre depuis le port série
+        valeur = distObstacleIR;
+  
+    vw_send((byte *) &valeur, sizeof(valeur)); // On envoie le message
+    vw_wait_tx(); // On attend la fin de l'envoi
+
+        valeur = distParcourue;
+  
+    vw_send((byte *) &valeur, sizeof(valeur)); // On envoie le message
+    vw_wait_tx(); // On attend la fin de l'envoi
+
+        valeur = v;
+  
+    vw_send((byte *) &valeur, sizeof(valeur)); // On envoie le message
+    vw_wait_tx(); // On attend la fin de l'envoi
 }
