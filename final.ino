@@ -13,9 +13,9 @@ const int cptGaucheMilieu = 8;
 const int cptDroiteMilieu = 7;
 const int cptDroite = 3;
 
+
 //Initialisation liaison radio
 const int RF_TX_PIN = 6;
-//const char *msg = "Bonjour"; // Tableau qui contient notre message
 float valeur = 0.0;
 
 
@@ -24,9 +24,10 @@ const int pinCptVitesse = 2;     //Sortie de la fourche pin2
 //Capteur vitesse
 const float roue = 20;          //nb de cran par roue
 const float periRoue = 18.84;      //environ perimetre de la roue en cm
-boolean EtatFourche = LOW;
-boolean roueActive = false;
+boolean EtatFourche = LOW;    //LOW plein, HIGH trou
+boolean roueActive = false;   //Pour savoir si la roue tourne
 static int nbCran = 0;
+static int nbCranTotal = 0;
 float distParcourue = 0;
 unsigned long t1 = micros();
 unsigned long t2 = micros();
@@ -48,7 +49,7 @@ float ms; // vitesse en m/s*/
 //Initialisation du pin du capteur IR
 const int ir = 1;
 int distObstacleIR = 0;
-char msgIR = "";
+
 
 //Initialisation des variables pour le pathfinding
 const int autonomus = 1;
@@ -171,7 +172,7 @@ void loop()
     Serial.print(distObstacleIR);
     Serial.println(" > 300 : Je ne peut pas me garer");
   }
-  msgIR = (char)distObstacleIR;
+
 
   /*t3 = (t2 - t1);
   TTS = ((float)t3 / 1000000.0);
@@ -247,7 +248,8 @@ void loop()
     Serial.print("Vitesse Instantané (m/s) : ");
     Serial.println(v);
     //distParcourue PARCOURUE ET VITESSE
-    distParcourue = ((nbCran / roue) * periRoue) / 100;
+    nbCranTotal = nbCranTotal + nbCran;
+    distParcourue = ((nbCranTotal / roue) * periRoue) / 100;
     Serial.print("Distance Totale Parcourue : ");
     Serial.print(distParcourue);
     Serial.println(" m");
