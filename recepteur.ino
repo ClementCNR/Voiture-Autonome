@@ -1,5 +1,6 @@
 #include <VirtualWire.h>
-const int RF_RX_PIN = 7;  //pin pour recevoir 
+const int RF_RX_PIN = 7;  //pin pour recevoir
+const int led_pin = 6; 
 
 
 void setup() {
@@ -25,6 +26,7 @@ void loop() {
   int j = 0;  //nb de 3 data recue
   if (vw_get_message((byte*) &valeur, &taille_message)) {
     // On copie le message dans valeur avec la limite à ne pas dépasser qui est 'taille message', qu'il soit corrompu ou non
+    digitalWrite(led_pin, HIGH); //Allume la led quand un msg est recu
     j++;
     Serial.print("Transmission [ ");
     Serial.print(j);
@@ -51,7 +53,8 @@ void loop() {
       Serial.println(valeur); // Affiche le message
       i = 0;     
     }
-    
+
+    digitalWrite(led_pin, LOW);
     
 
   }
