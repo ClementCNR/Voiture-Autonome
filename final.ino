@@ -466,13 +466,6 @@ void loop()
    }
  }
 
-    /*//Liaison radio
-    Serial.print("Envoie..."); // On signale le début de l'envoi
-    vw_send((uint8_t *)msg, strlen(msg)); // On envoie le message 
-    vw_wait_tx(); // On attend la fin de l'envoi
-    Serial.println("Done !"); // On signal la fin de l'envoi
-    delay(1000); // Et on attend 1s pour éviter que deux messages se superpose*/
-
 
       // Lit un nombre depuis le port série
         valeur = distObstacleIR;
